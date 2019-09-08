@@ -1,6 +1,6 @@
 ###### PRTG_dns
 
-Custom sensor for PRTG to allow you to monitor XMR-Stak
+Custom sensor for PRTG to allow you to check a host can resolce dns queries
 
 Tested with PRTG Version 19.3.51.2722
 XMR-Stak Version 2.10.4
