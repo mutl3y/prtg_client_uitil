@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"../sensor"
 	"fmt"
+	"github.com/mutl3y/prtg_dns/sensor"
 	"github.com/spf13/cobra"
 	"os"
 	"time"
@@ -27,10 +27,15 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "prtg_dns",
 	Short: "simple dns resolve test for remote nodes",
-	Long: ``,
+	Long: `
+simple dns resolve test for remote nodes using prtg
+
+Examples:
+	prtg_dns-windows-amd64.exe -a www.facebook.com,www.google.com -t 200ms
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		flags := cmd.Flags()
-		a, err := flags.GetStringSlice("addresses")
+		a, err := flags.GetStringSlice("addr")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -39,7 +44,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(err)
 		}
-		err = sensor.PrtgLookup(a,t)
+		err = sensor.PrtgLookup(a, t)
 	},
 }
 
@@ -53,6 +58,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringSliceP("addresses", "a", []string{"www.google.com"}, "1 to 50 domains")
+	rootCmd.PersistentFlags().StringSliceP("addr", "a", []string{"www.google.com", "www.facebook.com"}, "up to 50 addresses")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
 }

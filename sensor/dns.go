@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/PaesslerAG/go-prtg-sensor-api"
+	"math"
 	"net"
 	"time"
 )
@@ -41,7 +42,7 @@ func PrtgLookup(a []string, timeout time.Duration) error {
 		} else {
 			r.AddChannel(prtg.SensorChannel{
 				Name:      v,
-				Value:     dur.Seconds() * 1000,
+				Value:     math.Round(dur.Seconds() * 1000),
 				Float:     1,
 				ShowChart: show,
 				ShowTable: show,
@@ -53,4 +54,3 @@ func PrtgLookup(a []string, timeout time.Duration) error {
 	fmt.Println(r.String())
 	return nil
 }
-

@@ -17,10 +17,7 @@
 # vendor/
 
 .gitignore
-.idea/.gitignore
-.idea/misc.xml
-.idea/modules.xml
-.idea/prtg_dns.iml
+/.idea/
 /releases/
 prtgdns
 prtgdns.exe
