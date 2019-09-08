@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/PaesslerAG/go-prtg-sensor-api"
-	"math"
 	"net"
 	"time"
 )
+
+var show = new(int)
+
+func init() { *show = 1 }
 
 func Lookup(addr string, timeout time.Duration) ([]net.IPAddr, time.Duration, error) {
 	//	//const timeout = 100 * time.Millisecond
@@ -26,8 +29,6 @@ func Lookup(addr string, timeout time.Duration) ([]net.IPAddr, time.Duration, er
 }
 
 func PrtgLookup(a []string, timeout time.Duration) error {
-	show := new(int)
-	*show = 1
 
 	// Create empty response and log start time
 	r := &prtg.SensorResponse{}
@@ -42,7 +43,7 @@ func PrtgLookup(a []string, timeout time.Duration) error {
 		} else {
 			r.AddChannel(prtg.SensorChannel{
 				Name:      v,
-				Value:     math.Round(dur.Seconds() * 1000),
+				Value:     dur.Truncate(time.Millisecond).Seconds() * 1000,
 				Float:     1,
 				ShowChart: show,
 				ShowTable: show,

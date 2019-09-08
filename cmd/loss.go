@@ -17,21 +17,24 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/jackpal/gateway"
 	"github.com/mutl3y/prtg_dns/sensor"
+	"net"
+
 	"github.com/spf13/cobra"
-	"os"
-	"time"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "prtg_dns",
-	Short: "simple dns resolve test for remote nodes",
+// lossCmd represents the loss command
+var lossCmd = &cobra.Command{
+	Use:   "loss",
+	Short: "Returns packet loss for list of addresses / IP for use with PRTG",
 	Long: `
-simple dns resolve test for remote nodes using prtg
+Returns packet loss for list of addresses / IP for use with PRTG
+
+Uses default gateway if addr not specified
 
 Examples:
-	prtg_dns-windows-amd64.exe -a www.facebook.com,www.google.com -t 200ms
+	prtg_dns-windows-amd64.exe loss -t 200ms  
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		flags := cmd.Flags()
@@ -44,20 +47,25 @@ Examples:
 		if err != nil {
 			fmt.Println(err)
 		}
-		err = sensor.PrtgLookup(a, t)
+		c, err := flags.GetInt("count")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		err = sensor.PrtgPacketLoss(a, c, t)
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
 func init() {
-	rootCmd.Flags().StringSliceP("addr", "a", []string{"www.google.com", "www.facebook.com"}, "up to 50 addresses")
-	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
+	rootCmd.AddCommand(lossCmd)
+	defgw, err := gateway.DiscoverGateway()
+	if err != nil {
+		defgw = net.ParseIP("127.0.0.1")
+
+	}
+	lossCmd.Flags().StringSliceP("addr", "a", []string{defgw.String()}, "help for loss")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	lossCmd.Flags().IntP("count", "c", 3, "how many pings")
 }
