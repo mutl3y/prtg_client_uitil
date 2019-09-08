@@ -5,7 +5,7 @@ Custom sensor for PRTG to allow you to check a host can resolve dns queries
 Tested with PRTG Version 19.3.51.2722
 XMR-Stak Version 2.10.4
 
-Place binary in PRTG folder (this may be different on your install)
+Place binary in PRTG folder on monitored host (this may be different on your install)
 - Windows: C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML
 - Linux: /var/prtg/scriptsxml
 
@@ -22,6 +22,8 @@ To compile this yourself you need to...
     
 There are likely to be other small steps here as things may vary on your systems, If you need a OS binary and 
 not in a rush drop me a request    
+
+Add this to PRTG as an advanced custom exe / ssh script
 
 ```
 prtg_dns -h
