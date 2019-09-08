@@ -1,15 +1,14 @@
 ###### PRTG_dns
 
-Custom sensor for PRTG to allow you to monitor XMR-Stak
+Custom sensor for PRTG to allow you to check a host can resolve dns queries
 
 Tested with PRTG Version 19.3.51.2722
 XMR-Stak Version 2.10.4
 
-This sensor can be run from any PRTG probe however can also be run on the target machine or another in the same 
-network as it only supports http
+Place binary in PRTG folder 
 
-If running on a PRTG server itself copy the windows binary into the appropriate folder for PRTG
-on a default install this would be Directory of C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML
+Windows C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML
+Linux /var/prtg/scriptsxml
 
 This can also be compiled onto any Golang supported platform, Linux and windows versions will be found in 
 the release pages of Github
