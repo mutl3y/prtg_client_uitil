@@ -115,7 +115,7 @@ func PrtgPing(addr []string, count, size int, timeout, interval time.Duration, s
 			scs = append(scs, prtg.SensorChannel{
 				Name:  fmt.Sprintf("%v", "Packets Sent"),
 				Value: float64(s.PacketsSent),
-				Unit:  prtg.UnitPercent,
+				Unit:  prtg.UnitCount,
 			})
 			scs = append(scs, prtg.SensorChannel{
 				Name:  fmt.Sprintf("%v", "MinRtt"),
