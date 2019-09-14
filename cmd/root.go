@@ -60,4 +60,5 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringSliceP("addr", "a", []string{"www.google.com", "www.facebook.com"}, "up to 50 addresses")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
+	rootCmd.PersistentFlags().BoolP("debug", "d", false, "command line output")
 }

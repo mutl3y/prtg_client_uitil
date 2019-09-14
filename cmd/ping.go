@@ -20,6 +20,7 @@ import (
 	"github.com/jackpal/gateway"
 	"github.com/mutl3y/prtg_dns/sensor"
 	"net"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -27,32 +28,56 @@ import (
 // pingCmd represents the ping command
 var pingCmd = &cobra.Command{
 	Use:   "ping",
-	Short: "Returns AvgRtt for list of addresses / IP for use with PRTG",
+	Short: "Returns AvgRtt for list of addresses by default",
 	Long: `
-Returns AvgRtt for list of addresses / IP for use with PRTG
+Returns AvgRtt for list of addresses by default
 
 Uses default gateway if addr not specified
 
 Examples:
-	prtg_dns-windows-amd64.exe ping -t 200ms  
+	prtg_dns-windows-amd64.exe ping -t 200ms  -a "192.168.0.1,8.8.8.8,8.8.4.4"
+
+timeout will be adjusted to be (count * interval)+interval
+
+response time will vary depending on interval timer, 
+10 * 1s interval = 10 seconds
+
+Beware if you have IPS running in your network setting a low interval can be seen as packet loss
+
+for example Fortigate firewalls drop udp pings that exceed 1 per second
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		flags := cmd.Flags()
-		a, err := flags.GetStringSlice("addr")
+		addr, err := flags.GetStringSlice("addr")
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		t, err := flags.GetDuration("timeout")
+		timeout, err := flags.GetDuration("timeout")
 		if err != nil {
 			fmt.Println(err)
 		}
-		c, err := flags.GetInt("count")
+		interval, err := flags.GetDuration("interval")
 		if err != nil {
 			fmt.Println(err)
 		}
-
-		err = sensor.PrtgPing(a, c, t)
+		count, err := flags.GetInt("count")
+		if err != nil {
+			fmt.Println(err)
+		}
+		size, err := flags.GetInt("size")
+		if err != nil {
+			fmt.Println(err)
+		}
+		d, err := flags.GetBool("debug")
+		if err != nil {
+			fmt.Println(err)
+		}
+		statsType, err := flags.GetString("type")
+		if d {
+			sensor.Debug = true
+		}
+		err = sensor.PrtgPing(addr, count, size, timeout, interval, statsType)
 	},
 }
 
@@ -73,5 +98,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	pingCmd.Flags().IntP("count", "c", 3, "how many pings")
-
+	pingCmd.Flags().IntP("size", "s", 32, "packet size k")
+	pingCmd.Flags().DurationP("interval", "i", 500*time.Millisecond, "timeout string eg 500ms, whole operation not per ping")
+	pingCmd.Flags().StringP("type", "T", "", "leave blank for average response times\nloss\t packet loss\neverything\t all stats for first ip")
 }

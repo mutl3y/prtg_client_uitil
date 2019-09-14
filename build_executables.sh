@@ -28,3 +28,24 @@ do
 done
 
 cp releases/prtg_dns-windows-amd64.exe "/c/Program Files (x86)/PRTG Network Monitor/Custom Sensors/EXEXML/"
+
+
+ function myscp() {
+     scp -i /c/Users/mark/.ssh/mark releases/prtg_dns-linux-amd64 mark@linuxserver:/var/prtg/scriptsxml
+ }
+ tries=0
+ssh -i /c/Users/mark/.ssh/mark mark@linuxserver sudo rm /var/prtg/scriptsxml/prtg_dns-linux-amd64
+
+myscp; while [ $? -ne 0 ]
+ do
+ sleep 0.5
+ myscp
+ let tries=tries+1
+if  [ ${tries} -ge 20 ]; then
+    break
+fi
+ done
+
+ssh -i /c/Users/mark/.ssh/mark mark@linuxserver sudo chmod 777 /var/prtg/scriptsxml/*
+
+echo Completed uploads
