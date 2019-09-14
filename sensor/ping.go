@@ -82,7 +82,7 @@ func PrtgPing(addr []string, count, size int, timeout, interval time.Duration, s
 			}
 		default:
 			sch = prtg.SensorChannel{
-				Name:      fmt.Sprintf("%v", addr),
+				Name:      fmt.Sprintf("%v", "avg Rtt"),
 				Value:     s.AvgRtt.Truncate(time.Microsecond).Seconds() * 1000,
 				Float:     1,
 				ShowChart: show,
