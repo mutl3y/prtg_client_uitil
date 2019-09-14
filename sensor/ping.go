@@ -94,6 +94,14 @@ func PrtgPing(addr []string, count, size int, timeout, interval time.Duration, s
 		if statsType == "everything" {
 			scs := make([]prtg.SensorChannel, 0, 10)
 			scs = append(scs, prtg.SensorChannel{
+				Name:      fmt.Sprintf("%v", addr),
+				Value:     s.AvgRtt.Truncate(time.Microsecond).Seconds() * 1000,
+				Float:     1,
+				ShowChart: show,
+				ShowTable: show,
+				Unit:      prtg.UnitTimeResponse,
+			})
+			scs = append(scs, prtg.SensorChannel{
 				Name:  fmt.Sprintf("%v", "Packet Loss"),
 				Value: s.PacketLoss,
 				Float: 1,
