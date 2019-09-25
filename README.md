@@ -44,7 +44,7 @@ not in a rush drop me a request
 Add this to PRTG as an advanced custom exe / ssh script
 
 ```
-./prtg_dns-linux-amd64 -h
+./prtg_client_util-linux-amd64 -h
 
 simple dns resolve test for remote nodes
 
@@ -60,7 +60,7 @@ Global Flags:
   -t, --timeout duration   timeout string eg 500ms (default 500ms)
 ```
 ```
-./prtg_dns-linux-amd64 ping -h
+./prtg_client_util-linux-amd64 ping -h
 
 Returns AvgRtt for list of addresses by default for PRTG
 
@@ -96,6 +96,24 @@ Global Flags:
   -t, --timeout duration   timeout string eg 500ms (default 500ms)
 ```
 
+``` 
+./prtg_client_util-linux-amd64 ntp
+ntp client check for PRTG
+returns error on too much drift
+
+Usage:
+  prtg_client_util ntp [flags]
+
+Flags:
+  -h, --help                help for ntp
+  -m, --maxdrift duration   max drift allowed, default 0 (disabled)
+  -n, --ntphost string      ntp server to compare against local time (default "time.google.com")
+
+Global Flags:
+  -d, --debug              command line output
+  -t, --timeout duration   timeout string eg 500ms (default 500ms)
+
+```
 
 If you feel like saying thanks    
         XMR: 49QA139gTEVMDV9LrTbx3qGKKEoYJucCtT4t5oUHHWfPBQbKc4MdktXfKSeT1ggoYVQhVsZcPAMphRS8vu8oxTf769NDTMu
