@@ -80,9 +80,10 @@ func PrtgPing(addr []string, count, size int, timeout, interval time.Duration, s
 			if Debug {
 				fmt.Printf("ping response:\t %+v\n", *s)
 			}
+		case "everything":
 		default:
 			sch = prtg.SensorChannel{
-				Name:      fmt.Sprintf("%v", "avg Rtt"),
+				Name:      fmt.Sprintf("%v", addr),
 				Value:     s.AvgRtt.Truncate(time.Microsecond).Seconds() * 1000,
 				Float:     1,
 				ShowChart: show,
