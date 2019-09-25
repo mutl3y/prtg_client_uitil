@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mutl3y/prtg_dns/sensor"
+	"github.com/mutl3y/prtg_client_util/sensor"
 	"github.com/spf13/cobra"
 	"time"
 )

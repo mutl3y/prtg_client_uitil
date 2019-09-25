@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/mutl3y/prtg_dns/cmd"
+import "github.com/mutl3y/prtg_client_util/cmd"
 
 func main() {
 	cmd.Execute()

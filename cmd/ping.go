@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/jackpal/gateway"
-	"github.com/mutl3y/prtg_dns/sensor"
+	"github.com/mutl3y/prtg_client_util/sensor"
 	"net"
 	"time"
 
