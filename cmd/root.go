@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mutl3y/prtg_dns/sensor"
 	"github.com/spf13/cobra"
 	"os"
 	"time"
@@ -25,7 +24,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "prtg_dns",
+	Use:   "prtg_client_util",
 	Short: "simple dns resolve test for remote nodes",
 	Long: `
 simple dns resolve test for remote nodes using prtg
@@ -33,19 +32,6 @@ simple dns resolve test for remote nodes using prtg
 Examples:
 	prtg_dns-windows-amd64.exe -a www.facebook.com,www.google.com -t 200ms
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		flags := cmd.Flags()
-		a, err := flags.GetStringSlice("addr")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		t, err := flags.GetDuration("timeout")
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = sensor.PrtgLookup(a, t)
-	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -58,7 +44,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringSliceP("addr", "a", []string{"www.google.com", "www.facebook.com"}, "up to 50 addresses")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "command line output")
 }

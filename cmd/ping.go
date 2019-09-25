@@ -28,14 +28,11 @@ import (
 // pingCmd represents the ping command
 var pingCmd = &cobra.Command{
 	Use:   "ping",
-	Short: "Returns AvgRtt for list of addresses by default",
+	Short: "Ping list of addresses, return avgRTT by default",
 	Long: `
 Returns AvgRtt for list of addresses by default
 
 Uses default gateway if addr not specified
-
-Examples:
-	prtg_dns-windows-amd64.exe ping -t 200ms  -a "192.168.0.1,8.8.8.8,8.8.4.4"
 
 timeout will be adjusted to be (count * interval)+interval
 
@@ -83,9 +80,6 @@ for example Fortigate firewalls drop udp pings that exceed 1 per second
 
 func init() {
 	rootCmd.AddCommand(pingCmd)
-
-	// Here you will define your flags and configuration settings.
-
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	defgw, err := gateway.DiscoverGateway()
@@ -93,7 +87,7 @@ func init() {
 		defgw = net.ParseIP("127.0.0.1")
 
 	}
-	pingCmd.Flags().StringSliceP("addr", "a", []string{defgw.String()}, "A help for foo")
+	pingCmd.Flags().StringSliceP("addr", "a", []string{defgw.String()}, "comma separated hostname's or ip's")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
