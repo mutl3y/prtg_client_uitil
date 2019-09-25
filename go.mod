@@ -1,4 +1,4 @@
-module github.com/mutl3y/prtg_dns
+module github.com/mutl3y/prtg_client_util
 
 go 1.12
 

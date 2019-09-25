@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-package="github.com/mutl3y/prtg_dns"
+package="github.com/mutl3y/prtg_client_util"
 if [[ -z "$package" ]]; then
   echo "usage: $0 <package-name>"
   exit 1
@@ -27,11 +27,11 @@ do
     fi
 done
 
-cp releases/prtg_dns-windows-amd64.exe "/c/Program Files (x86)/PRTG Network Monitor/Custom Sensors/EXEXML/"
+cp releases/prtg_client_util-windows-amd64.exe "/c/Program Files (x86)/PRTG Network Monitor/Custom Sensors/EXEXML/"
 
 
  function myscp() {
-     scp -i /c/Users/mark/.ssh/mark releases/prtg_dns-linux-amd64 mark@linuxserver:/var/prtg/scriptsxml
+     scp -i /c/Users/mark/.ssh/mark releases/prtg_client_util-linux-amd64 mark@linuxserver:/var/prtg/scriptsxml
  }
  tries=0
 ssh -i /c/Users/mark/.ssh/mark mark@linuxserver sudo rm /var/prtg/scriptsxml/prtg_dns-linux-amd64
