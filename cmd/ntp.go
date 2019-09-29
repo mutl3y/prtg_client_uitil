@@ -25,7 +25,7 @@ import (
 // ntpCmd represents the ntp command
 var ntpCmd = &cobra.Command{
 	Use:   "ntp",
-	Short: "Check localtime vs ntp server time, ",
+	Short: "Check local time vs ntp server time, ",
 	Long: `ntp client check for PRTG
 returns error on too much drift
 

@@ -25,12 +25,9 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "prtg_client_util",
-	Short: "simple dns resolve test for remote nodes",
+	Short: "simple prtg tests for remote nodes",
 	Long: `
-simple dns resolve test for remote nodes using prtg
-
-Examples:
-	prtg_dns-windows-amd64.exe -a www.facebook.com,www.google.com -t 200ms
+A collection of PRTG tests to show a clients view of the world
 `,
 }
 
@@ -46,4 +43,6 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "command line output")
+	rootCmd.DisableAutoGenTag = true
+
 }

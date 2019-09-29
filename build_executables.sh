@@ -34,7 +34,7 @@ cp releases/prtg_client_util-windows-amd64.exe "/c/Program Files (x86)/PRTG Netw
      scp -i /c/Users/mark/.ssh/mark releases/prtg_client_util-linux-amd64 mark@linuxserver:/var/prtg/scriptsxml
  }
  tries=0
-ssh -i /c/Users/mark/.ssh/mark mark@linuxserver sudo rm /var/prtg/scriptsxml/prtg_dns-linux-amd64
+ssh -i /c/Users/mark/.ssh/mark mark@linuxserver sudo rm /var/prtg/scriptsxml/prtg_client_util-linux-amd64
 
 myscp; while [ $? -ne 0 ]
  do
