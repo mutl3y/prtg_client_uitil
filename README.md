@@ -5,6 +5,9 @@ Custom sensor for PRTG to allow you to check a clients view of
 - DNS,  Can client resolve dns queries
 - Ping, Ping hosts and measure response times and packet loss for multiple hosts
 - NTP,  Measure time drift of client time to NTP server
+- sshremote, run a version of this app remotely through a jumpbox/proxy
+- genDocs,  Generate documentation
+
  
 
 Tested with PRTG Version 19.3.51.2722
@@ -43,77 +46,14 @@ not in a rush drop me a request
 
 Add this to PRTG as an advanced custom exe / ssh script
 
-```
-./prtg_client_util-linux-amd64 -h
-
-simple dns resolve test for remote nodes
-
-Usage:
-  prtg_client_util dns [flags]
-
-Flags:
-  -a, --addr strings   up to 50 addresses (default [www.google.com,www.facebook.com])
-  -h, --help           help for dns
-
-Global Flags:
-  -d, --debug              command line output
-  -t, --timeout duration   timeout string eg 500ms (default 500ms)
-```
-```
-./prtg_client_util-linux-amd64 ping -h
-
-Returns AvgRtt for list of addresses by default for PRTG
-
-Uses default gateway if addr not specified
-
-Examples:
-        prtg_client_util-windows-amd64.exe ping -t 200ms  -a "192.168.0.1,8.8.8.8,8.8.4.4"
-
-timeout will be adjusted to be (count * interval)+interval
-
-response time will vary depending on interval timer,
-10 * 1s interval = 10 seconds
-
-Beware if you have IPS running in your network setting a low interval can be seen as packet loss
-
-for example Fortigate firewalls drop udp pings that exceed 1 per second silently
-
-Usage:
-  prtg_client_util ping [flags]
-
-Flags:
-  -a, --addr strings        A help for foo (default [192.168.0.1])
-  -c, --count int           how many pings (default 3)
-  -h, --help                help for ping
-  -i, --interval duration   timeout string eg 500ms, whole operation not per ping (default 500ms)
-  -s, --size int            packet size k (default 32)
-  -T, --type string         leave blank for average response times
-                            loss         packet loss
-                            everything   all stats for first ip
-
-Global Flags:
-  -d, --debug              command line output
-  -t, --timeout duration   timeout string eg 500ms (default 500ms)
-```
-
-``` 
-./prtg_client_util-linux-amd64 ntp
-ntp client check for PRTG
-returns error on too much drift
-
-Usage:
-  prtg_client_util ntp [flags]
-
-Flags:
-  -h, --help                help for ntp
-  -m, --maxdrift duration   max drift allowed, default 0 (disabled)
-  -n, --ntphost string      ntp server to compare against local time (default "time.google.com")
-
-Global Flags:
-  -d, --debug              command line output
-  -t, --timeout duration   timeout string eg 500ms (default 500ms)
-
-```
+Please see individual docs for usage or use genDocs subcommand to generate man or rest format
+prtg_util genDocs
+* [prtg_client_util](docs/prtg_client_util.md)	 - simple prtg tests for remote nodes
+* [prtg_client_util dns](docs/prtg_client_util_dns.md)	 - DNS resolve test
+* [prtg_client_util genDocs](docs/prtg_client_util_genDocs.md)	 - Create documentation for app
+* [prtg_client_util ntp](docs/prtg_client_util_ntp.md)	 - Check local time vs ntp server time, 
+* [prtg_client_util ping](docs/prtg_client_util_ping.md)	 - Ping list of addresses, return avgRTT by default
+* [prtg_client_util sshremote](docs/prtg_client_util_sshremote.md)	 - run command remotely through ssh tunnel via jumphost / proxy
 
 If you feel like saying thanks    
         XMR: 49QA139gTEVMDV9LrTbx3qGKKEoYJucCtT4t5oUHHWfPBQbKc4MdktXfKSeT1ggoYVQhVsZcPAMphRS8vu8oxTf769NDTMu
