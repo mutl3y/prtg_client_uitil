@@ -7,7 +7,7 @@ run command remotely through ssh tunnel via jumphost / proxy
 run command remotely through ssh tunnel
 
 Functionality is restricted to running prtg_client_util remotely from /var/prtg/scriptsxml.
-a copy of the app must be p[laced in that folder with execute permissions for remote user
+a copy of the app must be placed in that folder with execute permissions for remote user
 
 Be aware this effectively allows PRTG to perform remote code execution.
 
@@ -31,7 +31,7 @@ prtg_client_util sshremote [flags]
   -U, --d_user string      user on destination (default "prtgUtil")
   -h, --help               help for sshremote
   -f, --p_KeyFile string   proxy private keyfile (default "C:\\Users\\mark\\.ssh\\id_rsa")
-  -H, --p_host string      proxy host ip (default "localhost")
+  -H, --p_host string      proxy host ip
   -p, --p_pass string      proxy user password (default "prtgUtil")
   -o, --p_port string      ssh port on proxy (default "22")
   -u, --p_user string      user on proxy (default "prtgUtil")

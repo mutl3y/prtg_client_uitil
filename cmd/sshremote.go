@@ -30,7 +30,7 @@ var sshremoteCmd = &cobra.Command{
 	Long: `run command remotely through ssh tunnel
 
 Functionality is restricted to running prtg_client_util remotely from /var/prtg/scriptsxml.
-a copy of the app must be p[laced in that folder with execute permissions for remote user
+a copy of the app must be placed in that folder with execute permissions for remote user
 
 Be aware this effectively allows PRTG to perform remote code execution.
 
