@@ -42,7 +42,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 500*time.Millisecond, "timeout string eg 500ms")
-	rootCmd.PersistentFlags().BoolP("debug", "d", false, "command line output")
+	//	rootCmd.PersistentFlags().BoolP("debug", "d", false, "command line output")
 	rootCmd.DisableAutoGenTag = true
 
 }

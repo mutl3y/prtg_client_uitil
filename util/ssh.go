@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/PaesslerAG/go-prtg-sensor-api"
 	"github.com/appleboy/easyssh-proxy"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -82,4 +84,112 @@ func FailRemote(err error) {
 	r.SensorResult.Text = fmt.Sprintf("%v", err)
 
 	fmt.Println(r.String())
+}
+
+type platformSpec struct {
+	GOOS   string
+	GOARCH string
+}
+
+func (ssh *conn) getUname() (platformSpec, error) {
+	platform, errStr, isTimeout, err := ssh.Run("uname -s")
+	// Handle errors
+	if err != nil {
+		FailRemote(fmt.Errorf("%v ", err))
+		return platformSpec{}, fmt.Errorf("can't run remote command: %v %v", err.Error(), errStr)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		FailRemote(err)
+		return platformSpec{}, err
+	}
+
+	// get processor family
+	arch, errStr, isTimeout, err := ssh.Run("arch")
+	// Handle errors
+	if err != nil {
+		FailRemote(fmt.Errorf("%v ", err))
+		return platformSpec{}, fmt.Errorf("can't run remote command: %v %v", err.Error(), errStr)
+	}
+
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		FailRemote(err)
+		return platformSpec{}, err
+	}
+
+	platform = strings.ToLower(strings.TrimSpace(platform))
+	arch = strings.ToLower(strings.TrimSpace(arch))
+
+	if platform == "" || arch == "" {
+		return platformSpec{}, fmt.Errorf("could not id platform and processor family using uname")
+	}
+
+	switch arch {
+	case "x86_64":
+		fallthrough
+	case "x64":
+		arch = "amd64"
+
+	case "i386":
+		fallthrough
+	case "i686":
+		arch = "386"
+
+	case "armv6l":
+		fallthrough
+	case "armv7l":
+		fallthrough
+	case "armv8l":
+		arch = "arm64"
+
+	default:
+		return platformSpec{}, fmt.Errorf("arcitecture not implemented yet %v", arch)
+	}
+
+	switch {
+	case platform == "darwin":
+	case platform == "linux":
+	case strings.Contains(platform, "nt"):
+		platform = "windows"
+	default:
+		return platformSpec{}, fmt.Errorf("platform not implemented %v", platform)
+	}
+
+	return platformSpec{GOOS: platform, GOARCH: arch}, nil
+}
+
+func (ssh *conn) Deploy(dir string) error {
+	plat, err := ssh.getUname()
+	if err != nil {
+		return fmt.Errorf("failed to get remote platform details %v", err)
+	}
+
+	_, errStr, isTimeout, err := ssh.Run("mkdir -p /var/prtg/scriptsxml/dir")
+	if (err != nil) || errStr != "" {
+		return fmt.Errorf("failed creating directory %v", err)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+
+	fn := strings.Join([]string{"prtg_client_util", plat.GOOS, plat.GOARCH}, "-")
+
+	fnpath := strings.Join([]string{dir, fn}, string(os.PathSeparator))
+	target := "/var/prtg/scriptsxml/prtg_client_util"
+	err = ssh.Scp(fnpath, target)
+	if err != nil {
+		return fmt.Errorf("failed to scp file ", err)
+	}
+
+	_, errStr, isTimeout, err = ssh.Run("chmod 755 " + target)
+	if (err != nil) || errStr != "" {
+		return fmt.Errorf("failed creating directory %v", err)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+	return nil
 }

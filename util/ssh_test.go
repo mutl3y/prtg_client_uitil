@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func Test_main(t *testing.T) {
-	dest := SshStruct{
+var (
+	dest = SshStruct{
 		User:     "prtgUtil",
 		Server:   "localhost",
 		Key:      "",
@@ -16,12 +16,15 @@ func Test_main(t *testing.T) {
 		Timeout:  0,
 	}
 
-	proxy := SshStruct{
+	proxy = SshStruct{
 		User:     "prtgUtil",
 		Server:   "linuxserver",
 		Port:     "22",
 		Password: ",.password",
 	}
+)
+
+func Test_main(t *testing.T) {
 
 	type args struct {
 		dest, proxy SshStruct
@@ -47,4 +50,56 @@ func Test_main(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_getUname(t *testing.T) {
+	dest := SshStruct{
+		User:     "prtgUtil",
+		Server:   "localhost",
+		Key:      "",
+		KeyPath:  "",
+		Port:     "22",
+		Password: ",.password",
+		Timeout:  0,
+	}
+
+	proxy := SshStruct{
+		User:     "prtgUtil",
+		Server:   "linuxserver",
+		Port:     "22",
+		Password: ",.password",
+	}
+
+	type args struct {
+		user     string
+		server   string
+		password string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"", args{
+			user:     "prtgUtil",
+			server:   "linuxserver",
+			password: ",.password",
+		}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ssh := NewCon(dest, proxy)
+			plat, err := ssh.getUname()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getUname() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			t.Logf("%+v", plat)
+
+		})
+	}
+}
+
+func TestConn_Deploy(t *testing.T) {
+	ssh := NewCon(dest, proxy)
+	_ = ssh.Deploy("")
 }
