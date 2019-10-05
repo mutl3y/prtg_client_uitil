@@ -24,18 +24,18 @@ prtg_client_util sshremote [flags]
 ### Options
 
 ```
-  -F, --d_KeyFile string   destination private keyfile (default "C:\\Users\\mark\\.ssh\\id_rsa")
-  -D, --d_host string      destination host ip (default "localhost")
-  -P, --d_pass string      destination user password (default "prtgUtil")
-  -O, --d_port string      ssh port on dest (default "22")
-  -U, --d_user string      user on destination (default "prtgUtil")
   -h, --help               help for sshremote
-  -f, --p_KeyFile string   proxy private keyfile (default "C:\\Users\\mark\\.ssh\\id_rsa")
-  -H, --p_host string      proxy host ip
-  -p, --p_pass string      proxy user password (default "prtgUtil")
-  -o, --p_port string      ssh port on proxy (default "22")
-  -u, --p_user string      user on proxy (default "prtgUtil")
+  -f, --j_KeyFile string   jumphost - private key file
+  -i, --j_host string      jumphost - ip
+  -p, --j_pass string      jumphost - password (default "prtgUtil")
+  -o, --j_port string      jumphost - ssh port (default "22")
+  -u, --j_user string      jumphost - user (default "prtgUtil")
   -R, --run string         command to run on remote host (default "ping")
+  -F, --t_KeyFile string   target - private key file hint:C:\Users\mark\.ssh\it_rsa
+  -I, --t_host string      target - ip (default "localhost")
+  -P, --t_pass string      target - password (default "prtgUtil")
+  -O, --t_port string      target - ssh port (default "22")
+  -U, --t_user string      target - user (default "prtgUtil")
 ```
 
 ### Options inherited from parent commands

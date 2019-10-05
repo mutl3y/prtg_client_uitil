@@ -95,7 +95,6 @@ func (ssh *conn) getUname() (platformSpec, error) {
 	platform, errStr, isTimeout, err := ssh.Run("uname -s")
 	// Handle errors
 	if err != nil {
-		FailRemote(fmt.Errorf("%v ", err))
 		return platformSpec{}, fmt.Errorf("can't run remote command: %v %v", err.Error(), errStr)
 	}
 	if !isTimeout {
@@ -162,15 +161,13 @@ func (ssh *conn) getUname() (platformSpec, error) {
 func (ssh *conn) Deploy(dir string) error {
 	plat, err := ssh.getUname()
 	if err != nil {
-		return fmt.Errorf("failed to get remote platform details %v", err)
+		if strings.Contains(err.Error(), "Name or service not known") {
+			return fmt.Errorf("unknown host. try ip %v", err)
+		}
+		return fmt.Errorf("failed to get remote platform details \n%v", err)
 	}
 
-	_, errStr, isTimeout, err := ssh.Run("mkdir -p /var/prtg/scriptsxml/dir")
-	if (err != nil) || errStr != "" {
-		return fmt.Errorf("failed creating directory %v", err)
-	}
-	if !isTimeout {
-		err := fmt.Errorf("error: command timeout")
+	if err := ssh.mkScriptsXmlDir(ssh.User); err != nil {
 		return err
 	}
 
@@ -178,14 +175,144 @@ func (ssh *conn) Deploy(dir string) error {
 
 	fnpath := strings.Join([]string{dir, fn}, string(os.PathSeparator))
 	target := "/var/prtg/scriptsxml/prtg_client_util"
+	fmt.Printf("copying %v to %v %v", fnpath, ssh.Server, target)
 	err = ssh.Scp(fnpath, target)
 	if err != nil {
-		return fmt.Errorf("failed to scp file ", err)
+		fmt.Printf("%v %v", fnpath, target)
+		return fmt.Errorf("failed to scp file %v ", err)
 	}
 
-	_, errStr, isTimeout, err = ssh.Run("chmod 755 " + target)
+	_, errStr, isTimeout, err := ssh.Run("chmod 755 " + target)
 	if (err != nil) || errStr != "" {
-		return fmt.Errorf("failed creating directory %v", err)
+		return fmt.Errorf("failed chmoding directory %v", err)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+	return nil
+}
+
+func (ssh *conn) chown(file, user, group string) error {
+	c := fmt.Sprintf("chown -R %v:%v %v ", user, group, file)
+	_, errStr, isTimeout, err := ssh.Run(c)
+	if (err != nil) || errStr != "" {
+		fmt.Println(errStr)
+		return fmt.Errorf("failed chowning %v %v", file, err)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+	return nil
+}
+
+func (ssh *conn) mkScriptsXmlDir(user string) error {
+	_, errStr, isTimeout, err := ssh.Run("mkdir -p /var/prtg/scriptsxml")
+	if (err != nil) || errStr != "" {
+		return fmt.Errorf("error executing mkdir %v %v", err, errStr)
+	}
+	if !isTimeout {
+		return fmt.Errorf("error: command timeout")
+	}
+	if err := ssh.chown("/var/prtg/scriptsxml", user, user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ssh *conn) CreateUsers(tuser, tpass, juser, jpass string) error {
+	jssh := easyssh.MakeConfig{
+		User:     juser,
+		Server:   ssh.MakeConfig.Proxy.Server,
+		Port:     ssh.MakeConfig.Proxy.Port,
+		Password: jpass,
+		Timeout:  time.Minute,
+	}
+
+	if jpass == "" {
+		jssh = easyssh.MakeConfig{}
+	}
+
+	tssh := easyssh.MakeConfig{
+		User:     tuser,
+		Server:   ssh.MakeConfig.Server,
+		Port:     ssh.MakeConfig.Port,
+		Password: tpass,
+		Timeout:  time.Minute,
+		Proxy: easyssh.DefaultConfig{
+			User:     jssh.User,
+			Server:   jssh.Server,
+			Port:     jssh.Port,
+			Password: jssh.Password,
+			Timeout:  jssh.Timeout,
+		},
+	}
+
+	target := &conn{tssh}
+	jumphost := &conn{jssh}
+
+	if jumphost.Server != "" {
+		err := jumphost.createUser(ssh.MakeConfig.Proxy.User, ssh.MakeConfig.Proxy.Password)
+		if err != nil {
+			return fmt.Errorf("jumphost: %v", err)
+		}
+	}
+
+	err := target.createUser(ssh.MakeConfig.User, ssh.MakeConfig.Password)
+	if err != nil {
+		return fmt.Errorf("target: %v", err)
+	}
+	return target.mkScriptsXmlDir(ssh.User)
+}
+
+func (ssh *conn) createUser(usr, passwd string) error {
+	fmt.Printf("creating user %v on %v\n", usr, ssh.Server)
+
+	_, errStr, isTimeout, err := ssh.Run(fmt.Sprintf("/usr/sbin/useradd -m -l %v", usr))
+	if (err != nil) || errStr != "" {
+		if strings.Contains(errStr, "already exists") {
+			return ssh.updateUser(usr, passwd)
+		}
+		if err != nil {
+			if strings.Contains(err.Error(), "service not known") {
+				return fmt.Errorf("createUser: ssh connection error, unknown host, try ip")
+			}
+		}
+
+		return fmt.Errorf("failed createUser %v %v", usr, err)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+	_, errStr, isTimeout, err = ssh.Run(fmt.Sprintf(" echo %v:%v | /usr/sbin/chpasswd", usr, passwd))
+	if (err != nil) || errStr != "" {
+		return fmt.Errorf("failed setting password on %v \n%v %v", ssh.MakeConfig.Server, err, errStr)
+	}
+	if !isTimeout {
+		err := fmt.Errorf("error: command timeout")
+		return err
+	}
+
+	_ = ssh.Deploy("")
+
+	return err
+}
+
+func (ssh *conn) updateUser(usr, passwd string) error {
+
+	if passwd == "" {
+		return fmt.Errorf("don't use blank passwords %v on %v", usr, ssh.MakeConfig.Server)
+	}
+	_, errStr, isTimeout, err := ssh.Run(fmt.Sprintf(" echo %v:%v | /usr/sbin/chpasswd", usr, passwd))
+	if (err != nil) || errStr != "" {
+		if !strings.Contains(errStr, "password not changed") {
+			fmt.Println(errStr)
+			return fmt.Errorf("failed changing password %v on %v  \n%v", usr, ssh.MakeConfig.Server, err)
+		}
+
 	}
 	if !isTimeout {
 		err := fmt.Errorf("error: command timeout")

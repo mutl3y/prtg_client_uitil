@@ -43,7 +43,7 @@ func TestPrtgNtp(t *testing.T) {
 	}{
 		{"", args{a: "1.beevik-ntp1.pool.ntp.org", timeout: 5000 * time.Millisecond}, true},
 		{"", args{a: "time.google.com", timeout: 5000 * time.Millisecond, drift: time.Second}, false},
-		{"", args{a: "time.google.com", timeout: 5000 * time.Millisecond, drift: time.Nanosecond}, true},
+		{"", args{a: "time.google.com", timeout: 5 * time.Millisecond, drift: time.Nanosecond}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

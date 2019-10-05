@@ -46,7 +46,7 @@ Supports Markdown, Rest and man page formats
 
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			if err := os.Mkdir(path, os.ModePerm); err != nil {
-				log.Fatal("failed creating docs folder %v", err)
+				log.Fatalf("failed creating docs folder %v", err)
 			}
 
 		}

@@ -44,45 +44,45 @@ RSA key authentication is preferred however authentication will fall back to pas
 		flags := cmd.Flags()
 		run, err := flags.GetString("run")
 		handleVarError(err)
-		d_host, err := flags.GetString("d_host")
+		t_host, err := flags.GetString("t_host")
 		handleVarError(err)
-		d_port, err := flags.GetString("d_port")
+		t_port, err := flags.GetString("t_port")
 		handleVarError(err)
-		d_user, err := flags.GetString("d_user")
+		t_user, err := flags.GetString("t_user")
 		handleVarError(err)
-		d_pass, err := flags.GetString("d_pass")
+		t_pass, err := flags.GetString("t_pass")
 		handleVarError(err)
-		d_KeyFile, err := flags.GetString("d_KeyFile")
+		t_KeyFile, err := flags.GetString("t_KeyFile")
 		handleVarError(err)
 		timeout, err := flags.GetDuration("timeout")
 		handleVarError(err)
 
 		d := util.SshStruct{
-			User:     d_user,
-			Server:   d_host,
-			KeyPath:  d_KeyFile,
-			Port:     d_port,
-			Password: d_pass,
+			User:     t_user,
+			Server:   t_host,
+			KeyPath:  t_KeyFile,
+			Port:     t_port,
+			Password: t_pass,
 			Timeout:  timeout,
 		}
 
-		p_host, err := flags.GetString("p_host")
+		j_host, err := flags.GetString("j_host")
 		handleVarError(err)
-		p_port, err := flags.GetString("p_port")
+		j_port, err := flags.GetString("j_port")
 		handleVarError(err)
-		p_user, err := flags.GetString("p_user")
+		j_user, err := flags.GetString("j_user")
 		handleVarError(err)
-		p_pass, err := flags.GetString("p_pass")
+		j_pass, err := flags.GetString("j_pass")
 		handleVarError(err)
-		p_KeyFile, err := flags.GetString("p_KeyFile")
+		j_KeyFile, err := flags.GetString("j_KeyFile")
 		handleVarError(err)
 
 		p := util.SshStruct{
-			User:     p_user,
-			Server:   p_host,
-			KeyPath:  p_KeyFile,
-			Port:     p_port,
-			Password: p_pass,
+			User:     j_user,
+			Server:   j_host,
+			KeyPath:  j_KeyFile,
+			Port:     j_port,
+			Password: j_pass,
 			Timeout:  timeout,
 		}
 
@@ -99,21 +99,19 @@ func init() {
 	if err != nil {
 		log.Fatalf("failed to get users home directory %v", err)
 	}
-	defaultSshKey := strings.Join([]string{home, ".ssh", "id_rsa"}, string(os.PathSeparator))
+	defaultSshKey := strings.Join([]string{home, ".ssh", "it_rsa"}, string(os.PathSeparator))
 
-	sshremoteCmd.Flags().StringP("d_host", "D", "localhost", "destination host ip")
-	sshremoteCmd.Flags().StringP("d_port", "O", "22", "ssh port on dest")
-	sshremoteCmd.Flags().StringP("d_user", "U", "prtgUtil", "user on destination")
-	sshremoteCmd.Flags().StringP("d_pass", "P", "prtgUtil", "destination user password")
-	sshremoteCmd.Flags().StringP("d_KeyFile", "F", defaultSshKey, "destination private keyfile")
+	sshremoteCmd.Flags().StringP("t_host", "I", "localhost", "target - ip")
+	sshremoteCmd.Flags().StringP("t_port", "O", "22", "target - ssh port")
+	sshremoteCmd.Flags().StringP("t_user", "U", "prtgUtil", "target - user")
+	sshremoteCmd.Flags().StringP("t_pass", "P", "prtgUtil", "target - password")
+	sshremoteCmd.Flags().StringP("t_KeyFile", "F", "", "target - private key file hint:"+defaultSshKey)
 
-	sshremoteCmd.Flags().StringP("p_host", "H", "", "proxy host ip")
-	sshremoteCmd.Flags().StringP("p_port", "o", "22", "ssh port on proxy")
-	sshremoteCmd.Flags().StringP("p_user", "u", "prtgUtil", "user on proxy")
-	sshremoteCmd.Flags().StringP("p_pass", "p", "prtgUtil", "proxy user password")
-	sshremoteCmd.Flags().StringP("p_KeyFile", "f", defaultSshKey, "proxy private keyfile")
-	_ = sshremoteCmd.MarkFlagRequired("dest")
-	_ = sshremoteCmd.MarkFlagRequired("proxy")
+	sshremoteCmd.Flags().StringP("j_host", "i", "", "jumphost - ip")
+	sshremoteCmd.Flags().StringP("j_port", "o", "22", "jumphost - ssh port")
+	sshremoteCmd.Flags().StringP("j_user", "u", "prtgUtil", "jumphost - user")
+	sshremoteCmd.Flags().StringP("j_pass", "p", "prtgUtil", "jumphost - password")
+	sshremoteCmd.Flags().StringP("j_KeyFile", "f", "", "jumphost - private key file")
 
 }
 
@@ -121,6 +119,6 @@ func handleVarError(err error) {
 	if err == nil {
 		return
 	} else {
-		log.Fatalf("failed to get variable", err)
+		log.Fatalf("failed to get variable %v", err)
 	}
 }

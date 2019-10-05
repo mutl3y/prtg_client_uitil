@@ -18,6 +18,7 @@ A collection of PRTG tests to show a clients view of the world
 
 ### SEE ALSO
 
+* [prtg_client_util deploy](prtg_client_util_deploy.md)	 - deploy prtg_client_util via ssh tunnel to target
 * [prtg_client_util dns](prtg_client_util_dns.md)	 - DNS resolve test
 * [prtg_client_util genDocs](prtg_client_util_genDocs.md)	 - Create documentation for app
 * [prtg_client_util ntp](prtg_client_util_ntp.md)	 - Check local time vs ntp server time, 

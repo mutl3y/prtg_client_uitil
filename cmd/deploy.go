@@ -26,75 +26,90 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Debug bool
+
 // deployCmd represents the deploy command
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "deploy prtg_client_util remotely through ssh tunnel to jumphost or endpoint",
-	Long: `deploy prtg_client_util remotely through ssh tunnel to jumphost or endpoint
+	Short: "deploy prtg_client_util via ssh tunnel to target",
+	Long: `
+Deploy prtg_client_util via ssh tunnel to target
 
-Functionality is restricted to copying prtg_client_util to /var/prtg/scriptsxml
+Functionality is restricted to the follwing unless --createUsers is called 
+copy prtg_client_util compiled for destination OS to /var/prtg/scriptsxml
+chmod 755 /var/prtg/scriptsxml
 
-Only a basic user account should be created for this, no sudo rights etc but will need permissions 
-to add files and set executable bit in /var/prtg/scriptsxml
-
-sets files to perm 755 with user specified as owner
+createUsers:
+create user on target/jumpbox according to t_var and j_var parameters
+adds keyfile to authoriset_keys if supplied
 
 RSA key authentication is preferred however authentication will fall back to password if supplied
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		flags := cmd.Flags()
-		d_host, err := flags.GetString("d_host")
+		t_host, err := flags.GetString("t_host")
 		handleVarError(err)
-		d_port, err := flags.GetString("d_port")
+		t_port, err := flags.GetString("t_port")
 		handleVarError(err)
-		d_user, err := flags.GetString("d_user")
+		t_user, err := flags.GetString("t_user")
 		handleVarError(err)
-		d_pass, err := flags.GetString("d_pass")
+		t_pass, err := flags.GetString("t_pass")
 		handleVarError(err)
-		d_KeyFile, err := flags.GetString("d_KeyFile")
+		t_KeyFile, err := flags.GetString("t_KeyFile")
 		handleVarError(err)
 		timeout, err := flags.GetDuration("timeout")
 		handleVarError(err)
 
-		d := util.SshStruct{
-			User:     d_user,
-			Server:   d_host,
-			KeyPath:  d_KeyFile,
-			Port:     d_port,
-			Password: d_pass,
+		t := util.SshStruct{
+			User:     t_user,
+			Server:   t_host,
+			KeyPath:  t_KeyFile,
+			Port:     t_port,
+			Password: t_pass,
 			Timeout:  timeout,
 		}
 
-		p_host, err := flags.GetString("p_host")
+		j_host, err := flags.GetString("j_host")
 		handleVarError(err)
-		p_port, err := flags.GetString("p_port")
+		j_port, err := flags.GetString("j_port")
 		handleVarError(err)
-		p_user, err := flags.GetString("p_user")
+		j_user, err := flags.GetString("j_user")
 		handleVarError(err)
-		p_pass, err := flags.GetString("p_pass")
+		j_pass, err := flags.GetString("j_pass")
 		handleVarError(err)
-		p_KeyFile, err := flags.GetString("p_KeyFile")
+		j_KeyFile, err := flags.GetString("j_KeyFile")
 		handleVarError(err)
 
-		dir, err := flags.GetString("dir")
+		dir, err := flags.GetString("releases")
 		dir = filepath.Base(dir)
 		handleVarError(err)
 
-		p := util.SshStruct{
-			User:     p_user,
-			Server:   p_host,
-			KeyPath:  p_KeyFile,
-			Port:     p_port,
-			Password: p_pass,
+		j := util.SshStruct{
+			User:     j_user,
+			Server:   j_host,
+			KeyPath:  j_KeyFile,
+			Port:     j_port,
+			Password: j_pass,
 			Timeout:  timeout,
 		}
-
-		rem := util.NewCon(d, p)
-		_ = rem.Deploy(dir)
+		Debug, err = flags.GetBool("debug")
+		handleVarError(err)
+		rem := util.NewCon(t, j)
+		debug("connection \t%v\n", *rem)
+		err = rem.Deploy(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	},
+}
+
+func debug(format string, a ...interface{}) {
+	if Debug {
+		fmt.Printf(format+"\n", a...)
+	}
 }
 
 func init() {
@@ -104,7 +119,7 @@ func init() {
 		fmt.Println("failed to get present working directory")
 		return
 	}
-	deployCmd.Flags().StringP("dir", "R", strings.Join([]string{pwd, "releases"}, string(os.PathSeparator)), "releases directory, defaults to $pwd/releases")
+	deployCmd.PersistentFlags().StringP("releases", "R", strings.Join([]string{pwd, "releases"}, string(os.PathSeparator)), "releases directory, defaults to $pwd/releases")
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -112,18 +127,16 @@ func init() {
 	}
 	defaultSshKey := strings.Join([]string{home, ".ssh", "id_rsa"}, string(os.PathSeparator))
 
-	deployCmd.Flags().StringP("d_host", "D", "localhost", "destination host ip")
-	deployCmd.Flags().StringP("d_port", "O", "22", "ssh port on dest")
-	deployCmd.Flags().StringP("d_user", "U", "prtgUtil", "user on destination")
-	deployCmd.Flags().StringP("d_pass", "P", "prtgUtil", "destination user password")
-	deployCmd.Flags().StringP("d_KeyFile", "F", defaultSshKey, "destination private keyfile")
+	deployCmd.PersistentFlags().StringP("t_host", "I", "localhost", "target - ip")
+	deployCmd.PersistentFlags().StringP("t_port", "O", "22", "target - ssh port")
+	deployCmd.PersistentFlags().StringP("t_user", "U", "prtgUtil", "target - user")
+	deployCmd.PersistentFlags().StringP("t_pass", "P", "prtgUtil", "target - password")
+	deployCmd.PersistentFlags().StringP("t_KeyFile", "F", "", "target - private key file hint:"+defaultSshKey)
 
-	deployCmd.Flags().StringP("p_host", "H", "", "proxy host ip")
-	deployCmd.Flags().StringP("p_port", "o", "22", "ssh port on proxy")
-	deployCmd.Flags().StringP("p_user", "u", "prtgUtil", "user on proxy")
-	deployCmd.Flags().StringP("p_pass", "p", "prtgUtil", "proxy user password")
-	deployCmd.Flags().StringP("p_KeyFile", "f", defaultSshKey, "proxy private keyfile")
-	_ = deployCmd.MarkFlagRequired("dest")
-	_ = deployCmd.MarkFlagRequired("proxy")
+	deployCmd.PersistentFlags().StringP("j_host", "i", "", "jumphost - ip")
+	deployCmd.PersistentFlags().StringP("j_port", "o", "22", "jumphost - ssh port")
+	deployCmd.PersistentFlags().StringP("j_user", "u", "prtgUtil", "jumphost - user")
+	deployCmd.PersistentFlags().StringP("j_pass", "p", "prtgUtil", "jumphost - password")
+	deployCmd.PersistentFlags().StringP("j_KeyFile", "f", "", "jumphost - private key file hint:"+defaultSshKey)
 
 }
